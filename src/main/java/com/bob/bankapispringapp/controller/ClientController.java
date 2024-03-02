@@ -1,12 +1,17 @@
 package com.bob.bankapispringapp.controller;
 
+import com.bob.bankapispringapp.entity.Client;
 import com.bob.bankapispringapp.model.requestDTO.ClientReqDto;
+import com.bob.bankapispringapp.model.requestDTO.PageableRequestDto;
 import com.bob.bankapispringapp.model.responseDTO.ClientRespDto;
 import com.bob.bankapispringapp.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +24,7 @@ public class ClientController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void add(@RequestBody @Valid ClientReqDto clientReqDto){
+    public void add(@RequestBody ClientReqDto clientReqDto){
         clientService.add(clientReqDto);
     }
 
