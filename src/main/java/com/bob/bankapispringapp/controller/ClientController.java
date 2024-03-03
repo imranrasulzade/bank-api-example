@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("client")
+@RequestMapping("/client")
 @RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;
 
-    @PostMapping
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void add(@RequestBody @Valid ClientReqDto clientReqDto){
         clientService.add(clientReqDto);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<ClientRespDto> get(){
         return clientService.get();
     }

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Table
 @Entity
 @Data
+@NoArgsConstructor
 public class Client {
 
     @Id
@@ -51,4 +53,10 @@ public class Client {
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "name")})
     private Set<Authority> authorities = new HashSet<>();
 
+
+
+    public Client(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

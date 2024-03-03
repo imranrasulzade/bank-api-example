@@ -2,11 +2,10 @@ package com.bob.bankapispringapp.service.impl;
 
 import com.bob.bankapispringapp.entity.Authority;
 import com.bob.bankapispringapp.entity.Client;
-import com.bob.bankapispringapp.enums.AuthorityName;
+import com.bob.bankapispringapp.exception.AlreadyExistsException;
 import com.bob.bankapispringapp.exception.EntityNotFoundException;
 import com.bob.bankapispringapp.mapper.ClientMapper;
 import com.bob.bankapispringapp.model.requestDTO.ClientReqDto;
-import com.bob.bankapispringapp.model.requestDTO.PageableRequestDto;
 import com.bob.bankapispringapp.model.responseDTO.ClientRespDto;
 import com.bob.bankapispringapp.repository.ClientRepository;
 import com.bob.bankapispringapp.service.ClientService;
@@ -14,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -28,11 +27,16 @@ import java.util.Set;
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void add(ClientReqDto clientReqDto) {
         log.info("client add method started by -> {}", clientReqDto.getUsername());
+        if(clientRepository.findByUsername(clientReqDto.getUsername()).isPresent()){
+            throw new AlreadyExistsException("Client already exists!");
+        }
         Client client = clientMapper.toEntityForAdd(clientReqDto);
+        client.setPassword(passwordEncoder.encode(clientReqDto.getPassword()));
         Authority roles = new Authority(clientReqDto.getAuthorityName().name());
         Set<Authority> authorities = new HashSet<>();
         authorities.add(roles);

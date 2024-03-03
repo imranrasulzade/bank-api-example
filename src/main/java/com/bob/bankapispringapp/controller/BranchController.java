@@ -17,13 +17,13 @@ public class BranchController {
     private final BranchService branchService;
 
 
-    @PostMapping
+    @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
     public void add(@RequestBody @Valid BranchReqDto branchReqDto){
         branchService.add(branchReqDto);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<BranchRespDto> get(){
         return branchService.get();
     }

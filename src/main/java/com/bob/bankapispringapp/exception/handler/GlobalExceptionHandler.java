@@ -1,5 +1,6 @@
 package com.bob.bankapispringapp.exception.handler;
 
+import com.bob.bankapispringapp.exception.AlreadyExistsException;
 import com.bob.bankapispringapp.exception.EntityNotFoundException;
 import com.bob.bankapispringapp.exception.InvalidBirthdateException;
 import com.bob.bankapispringapp.model.ExceptionDTO;
@@ -60,6 +61,13 @@ public class GlobalExceptionHandler {
     public ExceptionDTO handleAuthentication(AuthenticationException e){
         log.error("ActionLog.error Authentication: {} ", e.getMessage());
         return new ExceptionDTO(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ExceptionDTO handleAlreadyExists(AlreadyExistsException e){
+        log.error("ActionLog.error AlreadyExists: {} ", e.getMessage());
+        return new ExceptionDTO(HttpStatus.CONFLICT.value(), e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

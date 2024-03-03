@@ -30,7 +30,7 @@ public class ClientReqDto {
     private String email;
 
     @NotNull
-    @Pattern(regexp = "^\\+994[0-9]{7}$", message = "Invalid phone format")
+    @Pattern(regexp = "^\\+994[0-9]{9}$", message = "Invalid phone format")
     private String phone;
 
     @ValidBirthdate
