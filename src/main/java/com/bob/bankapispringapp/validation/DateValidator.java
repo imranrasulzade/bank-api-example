@@ -1,5 +1,6 @@
 package com.bob.bankapispringapp.validation;
 
+import com.bob.bankapispringapp.exception.InvalidBirthdateException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -10,14 +11,17 @@ public class DateValidator  implements ConstraintValidator<ValidBirthdate, Local
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
         if (value == null) {
-            return false;
+            throw new InvalidBirthdateException("Invalid date for birthdate");
         }
 
         LocalDate now = LocalDate.now();
         LocalDate hundredYearsAgo = now.minusYears(100);
 
-        if (value.isBefore(hundredYearsAgo) || value.isAfter(now)) {
-            return false;
+        if (value.isBefore(hundredYearsAgo)) {
+            throw new InvalidBirthdateException("Invalid date for birthdate");
+        }
+        if(value.isAfter(now)){
+            throw new InvalidBirthdateException("Invalid date for birthdate");
         }
 
         return true;
