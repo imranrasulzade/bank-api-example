@@ -34,7 +34,8 @@ public enum AuthUrlMapping {
 
     ANY_AUTHENTICATED(null, new String[] {
             "/branch/all",
-            "/branch/{id}"
+            "/branch/{id}",
+            "/document/**"
     });
 
 

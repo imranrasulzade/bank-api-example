@@ -6,9 +6,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.cfg.defs.EmailDef;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table
@@ -45,6 +48,13 @@ public class Client {
 
     @NotNull
     private Integer status;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private List<ClientProperties> clientPropertiesList;
+
+
+
 
     @JsonIgnore
     @ManyToMany
