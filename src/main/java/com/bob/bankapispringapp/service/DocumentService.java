@@ -7,6 +7,6 @@ import java.io.IOException;
 @Service
 public interface DocumentService {
 
-    void exportTableToExcel(String tableName) throws IOException;
+    void exportTableToExcel(Integer clientId) throws IOException;
 
 }

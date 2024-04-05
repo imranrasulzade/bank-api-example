@@ -17,7 +17,7 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @GetMapping("/import-excel")
-    public void exportTableToExcel(@RequestParam String tableName) throws IOException {
-        documentService.exportTableToExcel(tableName);
+    public void exportTableToExcel(@RequestParam Integer clientId) throws IOException {
+        documentService.exportTableToExcel(clientId);
     }
 }
