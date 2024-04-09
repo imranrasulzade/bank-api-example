@@ -115,13 +115,13 @@ public class DocumentServiceImpl implements DocumentService {
 
         for (Field field : myClass.getDeclaredFields()) {
             Cell cell = headerRow.createCell(cellIndex++);
-            cell.setCellValue(field.getName());
+            cell.setCellValue(field.getName().toUpperCase());
             cell.setCellStyle(cellStyle);
         }
 
         for (String key : hashMapData.keySet()) {
             Cell cell = headerRow.createCell(cellIndex++);
-            cell.setCellValue(key);
+            cell.setCellValue(key.toUpperCase());
             cell.setCellStyle(cellStyle);
         }
 
