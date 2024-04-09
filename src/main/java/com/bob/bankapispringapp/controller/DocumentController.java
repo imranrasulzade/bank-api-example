@@ -20,4 +20,9 @@ public class DocumentController {
     public void exportTableToExcel(@RequestParam Integer clientId) throws IOException {
         documentService.exportTableToExcel(clientId);
     }
+
+    @GetMapping("/dd-excel")
+    public void export(@RequestParam Integer clientId) throws IOException {
+        documentService.exportFromDb(clientId);
+    }
 }

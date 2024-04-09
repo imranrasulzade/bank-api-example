@@ -69,4 +69,5 @@ public class Client {
         this.username = username;
         this.password = password;
     }
+
 }
