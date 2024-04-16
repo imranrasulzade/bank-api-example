@@ -1,5 +1,6 @@
 package com.bob.bankapispringapp.service;
 
+import com.bob.bankapispringapp.model.ChangePass;
 import com.bob.bankapispringapp.model.requestDTO.ClientReqDto;
 import com.bob.bankapispringapp.model.responseDTO.ClientRespDto;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,7 @@ public interface ClientService {
 //    Page<ClientRespDto> getAllClients(Pageable pageable);
 
     Page<ClientRespDto> getAllClients(int page, int size, String sort);
+
+    void changePassword(ChangePass changePass, Integer userId);
+
 }

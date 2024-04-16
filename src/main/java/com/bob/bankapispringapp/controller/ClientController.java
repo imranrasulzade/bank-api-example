@@ -1,5 +1,6 @@
 package com.bob.bankapispringapp.controller;
 
+import com.bob.bankapispringapp.model.ChangePass;
 import com.bob.bankapispringapp.model.requestDTO.ClientReqDto;
 import com.bob.bankapispringapp.model.responseDTO.ClientRespDto;
 import com.bob.bankapispringapp.service.ClientService;
@@ -43,6 +44,12 @@ public class ClientController {
                                              @RequestParam(defaultValue = "10") int size,
                                              @RequestParam(defaultValue = "asc") String sortDirection) {
         return clientService.getAllClients(page, size, sortDirection);
+    }
+
+
+    @PatchMapping("change-password/{userId}")
+    public void changePassword(@RequestBody ChangePass changePass, @PathVariable Integer userId){
+        clientService.changePassword(changePass, userId);
     }
 
 

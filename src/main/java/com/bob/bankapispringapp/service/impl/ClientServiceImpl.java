@@ -5,6 +5,7 @@ import com.bob.bankapispringapp.entity.Client;
 import com.bob.bankapispringapp.exception.AlreadyExistsException;
 import com.bob.bankapispringapp.exception.EntityNotFoundException;
 import com.bob.bankapispringapp.mapper.ClientMapper;
+import com.bob.bankapispringapp.model.ChangePass;
 import com.bob.bankapispringapp.model.requestDTO.ClientReqDto;
 import com.bob.bankapispringapp.model.responseDTO.ClientRespDto;
 import com.bob.bankapispringapp.repository.ClientRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -47,8 +49,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public List<ClientRespDto> get() {
-        return clientRepository.findAll().stream()
+        String username = "imran";
+        log.info("get method started by: {}", username);
+        List<ClientRespDto> clientRespDtos = clientRepository.findAll().stream()
                 .map(clientMapper::toDto).toList();
+        log.error("error");
+        log.info("get method done");
+        return clientRespDtos;
     }
 
     @Override
@@ -70,6 +77,19 @@ public class ClientServiceImpl implements ClientService {
                 Sort.Direction.fromString(sort),
                 "id");
         return clientRepository.findAll(pageRequest).map(clientMapper::toDto);
+    }
+
+    @Override
+    public void changePassword(ChangePass changePass, Integer userId) {
+        Optional<Client> clientOptional = clientRepository.findById(userId);
+        if(clientOptional.isPresent()){
+            Client client = clientOptional.get();
+            if(passwordEncoder.matches(changePass.getOldPass(), client.getPassword())
+            && changePass.getNewPass().equals(changePass.getReNewPass())){
+               client.setPassword(passwordEncoder.encode(changePass.getNewPass()));
+               clientRepository.save(client);
+            }
+        }
     }
 
 
