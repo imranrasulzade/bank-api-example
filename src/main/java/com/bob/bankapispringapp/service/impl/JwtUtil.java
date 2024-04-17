@@ -54,7 +54,7 @@ public class JwtUtil {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("authorities",roles);
         claimsMap.put("username", client.getUsername());
-        claimsMap.put("user_id", claims.getId());
+        claimsMap.put("user_id", client.getId());
 
         Date tokenCreateTime = new Date();
         Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
