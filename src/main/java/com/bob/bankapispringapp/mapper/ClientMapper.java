@@ -18,6 +18,7 @@ public abstract class ClientMapper {
 
 
     public abstract Client toEntityForAdd(ClientReqDto clientReqDto);
+    public abstract Client toEntityFromExcel(ClientForExcel clientForExcel);
     public abstract ClientRespDto toDto(Client client);
 
     @Mapping(source = "birthdate", target = "birthdate", qualifiedByName = "mapBirthdate")
