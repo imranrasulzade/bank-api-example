@@ -21,12 +21,12 @@ public class DocumentController {
 //        documentService.exportTableToExcel(clientId);
 //    }
 
-    @GetMapping("/dd-excel")
+    @GetMapping("/data-to-excel")
     public void export(@RequestParam Integer clientId) throws IOException {
         documentService.exportFromDb(clientId);
     }
 
-    @PostMapping(value = "/im-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/import-from-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void importToDb(@ModelAttribute MultipartFile file) throws IOException {
         documentService.importToDbFromExcel(file);
     }

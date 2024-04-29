@@ -11,7 +11,6 @@ import com.bob.bankapispringapp.service.DocumentService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -20,13 +19,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -143,6 +144,10 @@ public class DocumentServiceImpl implements DocumentService {
                 } else if (value instanceof Double) {
                     cell.setCellValue((Double) value);
                 } else if (value instanceof Date) {
+                    CreationHelper creationHelper = cell.getSheet().getWorkbook().getCreationHelper();
+                    CellStyle dateCellStyle = cell.getSheet().getWorkbook().createCellStyle();
+                    dateCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-MM-dd"));
+                    cell.setCellStyle(dateCellStyle);
                     cell.setCellValue((Date) value);
                 } else {
                     cell.setCellValue((String) value);
@@ -165,11 +170,69 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void importToDbFromExcel(MultipartFile file) throws IOException {
+        log.info("importToDbFromExcel method started");
         String excelFilePath = convertMultipartFileToPath(file);
-        ClientForExcel clientForExcel = readExcelDataWithReflect(excelFilePath);
+        ClientForExcel clientForExcel = readExcelDataWithReflectForClass(excelFilePath);
+//        System.out.println(clientForExcel);
+        Client clientDB = clientRepository.findByUsername(clientForExcel.getUsername())
+                .orElseThrow(()-> new EntityNotFoundException("Client not fount with this username: "
+                        + clientForExcel.getUsername()));
         Client client = clientMapper.toEntityFromExcel(clientForExcel);
-        clientRepository.save(client);
+//        System.out.println(client);
+        client.setId(clientDB.getId());
+        client.setPassword(clientDB.getPassword());
+        client.setAuthorities(clientDB.getAuthorities());
+//        System.out.println(client);
 
+
+
+        //***
+        HashMap<String, String> hashMap = fillHashMapFromExcel(ClientForExcel.class.getDeclaredFields().length, excelFilePath);
+//        System.out.println(hashMap);
+        List<ClientProperties> clientPropertiesList = fillListFromHashMap(hashMap);
+        List<ClientProperties> clientPropertiesFromDbList = clientPropertiesRepository
+                .findClientPropertiesByClient_Id(client.getId());
+        List<ClientProperties> uniqueList = removeDuplicateClientProperties(clientPropertiesList, clientPropertiesFromDbList);
+        clientPropertiesList.forEach(props -> props.setClient(client));
+
+        List<ClientProperties> updatedList = updateClientProperties(clientPropertiesList, clientPropertiesFromDbList);
+        client.setClientPropertiesList(updatedList);
+//        System.out.println(updatedList); //stackoverflow
+//        clientRepository.save(client);
+//        clientPropertiesRepository.saveAll(clientPropertiesList);
+        log.info("Client updated from excel data. Updated client username: {}", clientDB.getUsername());
+    }
+
+
+
+    private List<ClientProperties> removeDuplicateClientProperties(List<ClientProperties> list1, List<ClientProperties> list2) {
+        List<ClientProperties> filteredList = new ArrayList<>(list1);
+
+        for (ClientProperties clientProperties1 : list1) {
+            for (ClientProperties clientProperties2 : list2) {
+                if (clientProperties1.getPropertyKey().equals(clientProperties2.getPropertyKey()) &&
+                clientProperties1.getPropertyValue().equals(clientProperties2.getPropertyValue())) {
+                    filteredList.remove(clientProperties1);
+                    break;
+                }
+            }
+        }
+
+        return filteredList;
+    }
+
+    private List<ClientProperties> updateClientProperties(List<ClientProperties> list1, List<ClientProperties> list2) {
+        for (ClientProperties clientProperties1 : list1) {
+            for (ClientProperties clientProperties2 : list2) {
+                if (clientProperties1.getPropertyKey().equals(clientProperties2.getPropertyKey()) &&
+                        !clientProperties1.getPropertyValue().equals(clientProperties2.getPropertyValue())) {
+                    clientProperties1.setPropertyValue(clientProperties1.getPropertyValue());//stackoverflow
+                    break;
+                }
+            }
+        }
+
+        return list1;
     }
 
     private String convertMultipartFileToPath(MultipartFile multipartFile) throws IOException {
@@ -179,7 +242,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
 
-    private ClientForExcel readExcelDataWithReflect(String filePath) throws IOException {
+    private ClientForExcel readExcelDataWithReflectForClass(String filePath) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(filePath);
         XSSFSheet sheet = workbook.getSheetAt(0);
 
@@ -197,20 +260,117 @@ public class DocumentServiceImpl implements DocumentService {
             field.setAccessible(true);
             String fieldType = field.getType().getSimpleName();
             String cellValue = switch (fieldType) {
-//                case "Integer" -> String.valueOf((int) row.getCell(i).getNumericCellValue());
+                case "Integer" -> String.valueOf((int) row.getCell(i).getNumericCellValue());
                 case "String" -> row.getCell(i).getStringCellValue();
-//                case "Date" -> String.valueOf(row.getCell(i).getDateCellValue());
+                case "Date" -> String.valueOf(row.getCell(i).getDateCellValue());
                 default -> null;
             };
 
             try {
-                field.set(client, cellValue);
+//                field.set(client, cellValue);
+                setValueToClassField(field, client, cellValue);
             } catch (IllegalAccessException e) {
                 log.error("error due to -> {}", e.getMessage());
+            } catch (ParseException e) {
+                log.error("Error due to -> {}", e.getMessage());
+            }
+        }
+        workbook.close();
+        return client;
+    }
+
+    private void setValueToClassField(Field field, Object object, String cellValue) throws ParseException, IllegalAccessException {
+        if(field.getType().getSimpleName().equals("String")){
+            field.set(object, cellValue);
+        }else if(field.getType().getSimpleName().equals("Date")){
+            Date date = parseDate(cellValue);
+            field.set(object, date);
+        }else {
+            throw new RuntimeException("Unexpected data type for field");
+        }
+    }
+
+    private Date parseDate(String dateString) throws ParseException {
+        String format = "EEE MMM dd HH:mm:ss z yyyy";
+        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.UK);
+        Date date = formatter.parse(dateString);
+        return date;
+    }
+
+    private HashMap<String, String> fillHashMapFromExcel(Integer classFieldCount, String filePath) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook(filePath);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+
+        Row headerRow = sheet.getRow(0);
+
+        HashMap<String, String> hashMap = new HashMap<>();
+
+        for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+
+            for (int cellIndex = classFieldCount; cellIndex < row.getLastCellNum(); cellIndex++) {
+                Cell headerCell = headerRow.getCell(cellIndex);
+                Cell dataCell = row.getCell(cellIndex);
+
+                if (dataCell == null) {
+                    continue;
+                }
+
+                String header = headerCell.getStringCellValue();
+                String data = getCellValueAsString(dataCell);
+
+                hashMap.put(header.toLowerCase(), data);
             }
         }
 
-        return client;
+//        System.out.println(hashMap);
+        workbook.close();
+        return hashMap;
+    }
+
+    private List<ClientProperties> fillListFromHashMap(HashMap<String, String> hashMap){
+        List<ClientProperties> clientPropertiesList = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : hashMap.entrySet()) {
+            String propertyKey = entry.getKey();
+            String propertyValue = entry.getValue();
+
+            ClientProperties clientProperties = new ClientProperties();
+            //client id ve normal id elave etmeliyem. varsa bazadakini yenilemeli yoxdusa yeni insert atmaliyam
+            clientProperties.setPropertyKey(propertyKey);
+            clientProperties.setPropertyValue(propertyValue);
+
+            clientPropertiesList.add(clientProperties);
+        }
+//        System.out.println(clientPropertiesList);
+        return clientPropertiesList;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return "";
+        }
+    }
+
+
+
+    private String toUpperFirstLetter(String s) {
+        if (s.isEmpty()) {
+            return s;
+        }
+        char first = s.charAt(0);
+        if (!Character.isUpperCase(first)) {
+            return Character.toUpperCase(first) + s.substring(1);
+        } else {
+            return s;
+        }
     }
 
 
@@ -239,15 +399,7 @@ public class DocumentServiceImpl implements DocumentService {
 //    }
 
 
-    public String toUpperFirstLetter(String s) {
-        if (s.isEmpty()) {
-            return s;
-        }
-        char first = s.charAt(0);
-        if (!Character.isUpperCase(first)) {
-            return Character.toUpperCase(first) + s.substring(1);
-        } else {
-            return s;
-        }
-    }
+
+
+
 }
