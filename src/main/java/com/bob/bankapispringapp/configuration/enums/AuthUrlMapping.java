@@ -30,7 +30,8 @@ public enum AuthUrlMapping {
             "/auth/**",
             "/client/register",
             "/client/{id}",
-            "/document/**"
+            "/document/**",
+            "/document-v2/**"
     }),
 
     ANY_AUTHENTICATED(null, new String[] {

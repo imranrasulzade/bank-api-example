@@ -1,28 +1,27 @@
 package com.bob.bankapispringapp.controller;
 
 import com.bob.bankapispringapp.service.DocumentService;
+import com.bob.bankapispringapp.service.DocumentServiceV2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/document")
-public class DocumentController {
-
-    private final DocumentService documentService;
+@RequestMapping("/document-v2")
+public class DocumentControllerV2 {
+    private final DocumentServiceV2 documentServiceV2;
 
     @GetMapping("/data-to-excel")
-    public void export(@RequestParam Integer clientId) throws IOException {
-        documentService.exportFromDb(clientId);
+    public void export() throws IOException {
+        documentServiceV2.exportFromDb();
     }
 
     @PostMapping(value = "/import-from-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void importToDb(@ModelAttribute MultipartFile file) throws IOException {
-        documentService.importToDbFromExcel(file);
+        documentServiceV2.importToDbFromExcel(file);
     }
 }

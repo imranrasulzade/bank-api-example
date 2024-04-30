@@ -1,0 +1,80 @@
+@Entity
+public class Post {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    @ManyToOne(fetch = FetchType.LAZY) // Lazy loading için FetchType.LAZY kullanın
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+    // ...
+}
+
+@Entity
+public class Author {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    // ...
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("my-persistence-unit");
+        EntityManager em = emf.createEntityManager();
+
+        // Lazy loading örneği
+
+        // 1. Adım: Bir Post nesnesi oluşturun ve veritabanına kaydedin
+        Post post = new Post();
+        post.setTitle("Lazy Loading Örneği");
+
+        Author author = new Author();
+        author.setName("Lazy Yazar");
+        post.setAuthor(author);
+
+        em.getTransaction().begin();
+        em.persist(post);
+        em.getTransaction().commit();
+
+        // 2. Adım: Post nesnesini veritabanından alın
+        Long postId = post.getId();
+        Post retrievedPost = em.find(Post.class, postId);
+
+        // 3. Adım: İlişkili Author nesnesine erişmeye çalışın
+        System.out.println("Yazar Adı (Lazy Loading): " + retrievedPost.getAuthor().getName());
+
+        // Eager loading örneği
+
+        // 1. Adım: Bir Post nesnesi oluşturun ve veritabanına kaydedin
+        Post eagerPost = new Post();
+        eagerPost.setTitle("Eager Loading Örneği");
+
+        Author eagerAuthor = new Author();
+        eagerAuthor.setName("Eager Yazar");
+        eagerPost.setAuthor(eagerAuthor);
+
+        em.getTransaction().begin();
+        em.persist(eagerPost);
+        em.getTransaction().commit();
+
+        // 2. Adım: Post nesnesini veritabanından alın
+        Long eagerPostId = eagerPost.getId();
+        Post retrievedEagerPost = em.find(Post.class, eagerPostId);
+
+        // 3. Adım: İlişkili Author nesnesine erişmeye çalışın
+        System.out.println("Yazar Adı (Eager Loading): " + retrievedEagerPost.getAuthor().getName());
+
+        em.close();
+        emf.close();
+    }
+}
