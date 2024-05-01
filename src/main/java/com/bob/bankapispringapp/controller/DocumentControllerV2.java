@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class DocumentControllerV2 {
     private final DocumentServiceV2 documentServiceV2;
 
     @GetMapping("/data-to-excel")
-    public void export() throws IOException {
+    public void export() throws IOException, ParseException {
         documentServiceV2.exportFromDb();
     }
 

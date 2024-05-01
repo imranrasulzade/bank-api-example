@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -25,5 +27,9 @@ public class Customer {
     private String surname;
 
     @CreationTimestamp
-    private Date timestamp;
+    private LocalDate timestamp;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private List<CustomerProps> customerPropsList;
 }
