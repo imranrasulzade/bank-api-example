@@ -56,16 +56,18 @@ public class DocumentServiceImplV2 implements DocumentServiceV2 {
         List<Customer> customers = readCustomerDataFromExcel(excelFilePath);
 
         for (Customer customer : customers) {
-            List<CustomerProps> customerPropsList = customer.getCustomerPropsList();
-            customerPropsList.forEach(props ->{
-                Customer tempCustomer = new Customer();
-                tempCustomer.setId(customer.getId());
-                props.setCustomer(tempCustomer);
-            });
-            List<CustomerProps> customerPropsDB = customerPropsRepository.findByCustomerId(customer.getId());
-            List<CustomerProps> filteredList = removeDuplicateCustomerProps(customerPropsList, customerPropsDB);
-            filteredList.forEach(customerProps -> customerProps.setCustomer(customer));
-            customer.setCustomerPropsList(filteredList);
+            if(customer.getCustomerPropsList() != null){
+                List<CustomerProps> customerPropsList = customer.getCustomerPropsList();
+                customerPropsList.forEach(props ->{
+                    Customer tempCustomer = new Customer();
+                    tempCustomer.setId(customer.getId());
+                    props.setCustomer(tempCustomer);
+                });
+                List<CustomerProps> customerPropsDB = customerPropsRepository.findByCustomerId(customer.getId());
+                List<CustomerProps> filteredList = removeDuplicateCustomerProps(customerPropsList, customerPropsDB);
+                filteredList.forEach(customerProps -> customerProps.setCustomer(customer));
+                customer.setCustomerPropsList(filteredList);
+            }
         }
         customerRepository.saveAll(customers);
         log.info("customer list saved all");
