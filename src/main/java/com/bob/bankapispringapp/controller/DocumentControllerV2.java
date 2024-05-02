@@ -1,7 +1,8 @@
 package com.bob.bankapispringapp.controller;
 
-import com.bob.bankapispringapp.service.DocumentService;
+import com.bob.bankapispringapp.model.EmailWithAttachment;
 import com.bob.bankapispringapp.service.DocumentServiceV2;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -24,5 +25,11 @@ public class DocumentControllerV2 {
     @PostMapping(value = "/import-from-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void importToDb(@ModelAttribute MultipartFile file) throws IOException {
         documentServiceV2.importToDbFromExcel(file);
+    }
+
+
+    @PostMapping(value = "/doc-to-email", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void docToEmail(@ModelAttribute EmailWithAttachment email) throws IOException, MessagingException {
+        documentServiceV2.docToEmail(email);
     }
 }

@@ -42,12 +42,12 @@ public class GlobalExceptionHandler {
 //        return new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
 //    }
 
-//    @ExceptionHandler(RuntimeException.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ExceptionDTO handleGlobalRuntime(RuntimeException e){
-//        log.error("ActionLog.error global RuntimeException: {} ", e.getMessage());
-//        return new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-//    }
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionDTO handleGlobalRuntime(RuntimeException e){
+        log.error("ActionLog.error global RuntimeException: {} ", e.getMessage());
+        return new ExceptionDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

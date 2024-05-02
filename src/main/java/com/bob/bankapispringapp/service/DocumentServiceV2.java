@@ -1,5 +1,7 @@
 package com.bob.bankapispringapp.service;
 
+import com.bob.bankapispringapp.model.EmailWithAttachment;
+import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +14,7 @@ public interface DocumentServiceV2 {
     void exportFromDb() throws IOException, ParseException;
 
     void importToDbFromExcel(MultipartFile file) throws IOException;
+    void docToEmail(EmailWithAttachment email) throws IOException, MessagingException;
 
 
 }

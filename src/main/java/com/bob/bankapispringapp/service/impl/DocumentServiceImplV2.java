@@ -2,9 +2,12 @@ package com.bob.bankapispringapp.service.impl;
 
 import com.bob.bankapispringapp.entity.Customer;
 import com.bob.bankapispringapp.entity.CustomerProps;
+import com.bob.bankapispringapp.model.EmailWithAttachment;
 import com.bob.bankapispringapp.repository.CustomerPropsRepository;
 import com.bob.bankapispringapp.repository.CustomerRepository;
 import com.bob.bankapispringapp.service.DocumentServiceV2;
+import com.bob.bankapispringapp.service.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -28,6 +31,7 @@ import java.util.*;
 public class DocumentServiceImplV2 implements DocumentServiceV2 {
     private final CustomerRepository customerRepository;
     private final CustomerPropsRepository customerPropsRepository;
+    private final EmailService emailService;
 
     @Override
     public void exportFromDb() throws IOException, ParseException {
@@ -73,6 +77,15 @@ public class DocumentServiceImplV2 implements DocumentServiceV2 {
         log.info("customer list saved all");
 
     }
+
+
+
+    @Override
+    public void docToEmail(EmailWithAttachment email) throws IOException, MessagingException {
+        emailService.sendEmailWithAttachment(email);
+    }
+
+
 
     private void fillHeader(List<Customer> customers, Row headerRow, Map<String, Integer> propertyKeyToColumnIndex) {
         Cell cell = headerRow.createCell(0);
