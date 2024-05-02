@@ -61,7 +61,8 @@ dependencies {
 //    implementation 'org.apache.xmlbeans:xmlbeans:5.1.0'
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'org.apache.poi:poi-ooxml:4.0.0'
-
+    // https://mvnrepository.com/artifact/org.aspectj/aspectjrt
+    runtimeOnly group: 'org.aspectj', name: 'aspectjrt', version: '1.9.22'
 }
 
 tasks.named('test') {
