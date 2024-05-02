@@ -1,4 +1,4 @@
-package aspect;
+package com.bob.bankapispringapp.aspect;
 
 import com.bob.bankapispringapp.entity.Client;
 import com.bob.bankapispringapp.entity.ClientLog;
@@ -29,7 +29,6 @@ public class ClientLoggingAspect {
     @SneakyThrows
     @AfterReturning("execution(* com.bob.bankapispringapp.service.impl.AuthServiceImpl.authenticate(..))")
     public void logSignIn(JoinPoint joinPoint) {
-        log.info("dnvf");
         ClientLog clientLog = new ClientLog();
         LoginReq loginReq = (LoginReq) joinPoint.getArgs()[0];
         String username = loginReq.getUsername();
@@ -40,7 +39,7 @@ public class ClientLoggingAspect {
             clientLog.setClient(client);
             clientLog.setLastLoginDate(LocalDate.now());
             clientLogRepository.save(clientLog);
-            log.info("client login logged");
+            log.info("client login logged with aspect");
         }
     }
 }
